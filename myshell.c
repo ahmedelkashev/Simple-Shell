@@ -19,12 +19,15 @@ int main() {
 
   while (1) {
 
+    /* get current working directory and prompt */
     if ( getcwd(cwd, sizeof(cwd) ) != NULL) {
         printf("\nYou@My_Shell>> %s: ", cwd);
     } else {
 	printf("\nMy Shell>> ");
     }
+
     input = getline();
+
 
     /* handling all cases of different commands */
     for (int i = 0; input[i] != NULL; ++i) {
