@@ -13,7 +13,7 @@ int main() {
   char **input;
 
   while (1) {
-    printf("My Shell>> ");
+    printf("\nMy Shell>> ");
     input = getline();
 
     /* handling all cases of different commands */
@@ -29,16 +29,14 @@ int main() {
 	char cwd[1024];
 	if (getcwd(cwd, sizeof(cwd)) != NULL) {
 	    printf("%s\n",cwd);
-	} else {
+	} /* else {
 	    perror("getcwd() Error");
-	}
+	} */
       }
 
       /* changing current directory */
       if ( strcmp(input[0],"cd") == 0 ) {
 	chdir(input[1]);
-      } else {
-	perror("Error");
       }
 
 
