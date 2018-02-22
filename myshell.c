@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,36 @@ int main(int argc, char *argv[]) {
 
     /* handling all cases of different commands */
     for (int i = 0; input[i] != NULL; ++i) {
+
+      /* commands with no arguments */
+      if (argc == 1) {
+	int pid = fork();
+
+	/* parent process */
+	if (pid > 0) { 
+	    wait(NULL);
+	}
+	/* child process */
+	else {
+	    /* do stuff */
+	    exit(1);
+	}
+      }
+
+      /* commands with more than 1 argument */
+      if (argc > 1) {
+	int pid = fork();
+
+	/* parent process */
+	if (pid > 0) {
+	    wait(NULL);
+	}
+	/* child process */
+	else {
+	/* do stuff */
+	}
+      }
+
 
       /* exit the shell */
       if ( strcmp(input[0],"exit") == 0 ) {
@@ -66,8 +97,6 @@ int main(int argc, char *argv[]) {
 	}
 	printf("\n");
       }
-
-
 
       printf("Item %i of input: %s\n", i, input[i]); // The input list that must be parsed. 
     }
