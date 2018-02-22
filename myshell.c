@@ -12,6 +12,7 @@ int main() {
   char **input;
 
   while (1) {
+    printf("My Shell>> ");
     input = getline();
 
     /* handling all cases of different commands */
