@@ -13,7 +13,7 @@ char *getcwd(char *buf, size_t size);
 char cwd[1024];
 
 
-int main() {
+int main(int argc, char *argv[]) {
   int i;
   char **input;
 
@@ -48,16 +48,19 @@ int main() {
 
       /* changing current directory */
       if ( strcmp(input[0],"cd") == 0 ) {
+	
+	/* if no argument for cd */
+	if (argc == 1) {
+	    chdir("/");
+	}
 	chdir(input[1]);
       }
 
       /* list files in a directory */
       if ( strcmp(input[0],"ls") == 0 ) {
-	char *pointer = NULL;
 	DIR *dp = NULL;
 	struct dirent *sd = NULL;
-	pointer = getenv("PWD");
-	dp = opendir((const char*)pointer);
+	dp = opendir(".");
 	while( (sd=readdir(dp)) != NULL ) {
 	    printf("%s \t", sd->d_name);
 	}
