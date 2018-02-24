@@ -12,7 +12,7 @@
 extern char **getline();
 char *getcwd(char *buf, size_t size);
 char cwd[1024];
-
+char relative_path[1024];
 
 int main(int argc, char *argv[]) {
   int i;
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
     /* get current working directory and prompt */
     if ( getcwd(cwd, sizeof(cwd) ) != NULL) {
-        printf("\nYou@My_Shell>> %s: ", cwd);
+        printf("\nYou@My_Shell>>%s: ", cwd);
     } else {
 	printf("\nMy Shell>> ");
     }
@@ -84,7 +84,8 @@ int main(int argc, char *argv[]) {
 	if (argc == 1) {
 	    chdir("/");
 	}
-	chdir(input[1]);
+	sprintf(relative_path,"%s/%s",cwd,input[1]);
+	chdir(relative_path);
       }
 
       /* list files in a directory */
