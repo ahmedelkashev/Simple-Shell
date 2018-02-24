@@ -6,7 +6,7 @@ int main() {
 	struct dirent *sd = NULL;
 	dp = opendir(".");
 	while( (sd=readdir(dp)) != NULL ) {
-		printf("%s \t", sd->d_name);
+		printf("%4s \t", sd->d_name);
 	}
 	printf("\n");
 }
