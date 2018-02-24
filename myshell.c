@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
-#include <dirent.h>
+
 
 extern char **getline();
 char *getcwd(char *buf, size_t size);
@@ -44,8 +44,7 @@ int main(int argc, char *argv[]) {
 	}
 	/* child process */
 	else {
-	    sprintf(program_path,"./%s",input[0]);
-	    puts(program_path);
+	    sprintf(program_path,"/home/AhmedElkashef/asgn1/%s",input[0]);
 	    execvp(program_path,argv);
 	    exit(1);
 	}
@@ -69,16 +68,6 @@ int main(int argc, char *argv[]) {
 	chdir(relative_path);
       }
 
-      /* list files in a directory */
-      if ( strcmp(input[0],"ls") == 0 ) {
-	DIR *dp = NULL;
-	struct dirent *sd = NULL;
-	dp = opendir(".");
-	while( (sd=readdir(dp)) != NULL ) {
-	    printf("%s \t", sd->d_name);
-	}
-	printf("\n");
-      }
 
       printf("Item %i of input: %s\n", i, input[i]); // The input list that must be parsed. 
     }
