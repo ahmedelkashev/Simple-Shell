@@ -13,6 +13,7 @@ extern char **getline();
 char *getcwd(char *buf, size_t size);
 char cwd[1024];
 char relative_path[1024];
+char program_path[1024];
 
 int main(int argc, char *argv[]) {
   int i;
@@ -37,28 +38,16 @@ int main(int argc, char *argv[]) {
       if (argc == 1) {
 	int pid = fork();
 
-	/* parent process */
+	/* parent process-shell */
 	if (pid > 0) { 
 	    wait(NULL);
 	}
 	/* child process */
 	else {
-	    /* do stuff */
+	    sprintf(program_path,"./%s",input[0]);
+	    puts(program_path);
+	    execvp(program_path,argv);
 	    exit(1);
-	}
-      }
-
-      /* commands with more than 1 argument */
-      if (argc > 1) {
-	int pid = fork();
-
-	/* parent process */
-	if (pid > 0) {
-	    wait(NULL);
-	}
-	/* child process */
-	else {
-	/* do stuff */
 	}
       }
 
@@ -68,14 +57,6 @@ int main(int argc, char *argv[]) {
 	exit(-1);
       }
 
-      /* print current directory */
-      if (strcmp(input[0],"cwd") == 0 ) {
-	if (getcwd(cwd, sizeof(cwd)) != NULL) {
-	    printf("%s\n",cwd);
-	} else {
-	    perror("getcwd() Error");
-	} 
-      }
 
       /* changing current directory */
       if ( strcmp(input[0],"cd") == 0 ) {
