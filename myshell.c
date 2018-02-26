@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
 
   int writeFile;
   int readFile;
+  int fd[2];
+  pipe(fd);
 
   while (1) {
     
@@ -33,20 +35,20 @@ int main(int argc, char *argv[]) {
 
     input = getline();
 
-    /* make sure that there are arguments */
+    /* if there are arguments */
     if (argc > 0) {
 	
 	int pid = fork();
 
-	/* parent process-shell */
+	/* parent process: shell */
 	if (pid > 0) { 
 	    wait(NULL);
 	}
 	/* child process */
-	else {
+	else if (pid ==  0){
 
    	    for (int i = 0; input[i] != NULL; ++i) {
-	    /* if > is in command, redirect output to file */
+	    	/* redirect output to file */
 		if( strcmp(input[i],">") == 0 ) {
 			writeFile = open(input[i+1], O_RDWR | 
 O_CREAT, S_IRUSR | S_IWUSR);
@@ -56,7 +58,9 @@ O_CREAT, S_IRUSR | S_IWUSR);
 			dup2(writeFile, 1);
 			dup2(writeFile, 2);
 			close(writeFile);
-		} else if ( strcmp(input[i],"<") == 0 ) {
+		}
+		/* redirect input into process */
+		else if ( strcmp(input[i],"<") == 0 ) {
 			readFile = open(input[i+1], O_RDONLY);
 			input[i] = NULL;
 			input[i+1] = NULL;
@@ -64,12 +68,21 @@ O_CREAT, S_IRUSR | S_IWUSR);
 			dup2(readFile, 0);
 			close(readFile);
 		}
+		/* handling pipes */
+		 else if ( strcmp(input[i],"|") == 0 ) {
+
+		}
 	    }
 
 	    /* add path to the program and execute */
 	    sprintf(program_path,"/bin/%s",input[0]);
 	    execvp(program_path,&input[0]);
 	    exit(1);
+	}
+	/* handle forking error */
+	else if (pid == -1) {
+		perror("fork");
+		exit(1);
 	}
     }
 
