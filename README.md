@@ -35,6 +35,7 @@ System Calls
 - `fork()`: The [fork()](http://man7.org/linux/man-pages/man2/fork.2.html) system call creates a new process by duplicating the calling process. The new process is referred to as the child process. The calling process is referred to as the parent process.
 - `wait()`: The [wait()](http://man7.org/linux/man-pages/man2/waitpid.2.html) system call suspends execution of the calling process until one of its children terminates.
 - `dup2()`: The [dup2()](http://man7.org/linux/man-pages/man2/dup.2.html) system call creates a copy of the file descriptor, using the the file descriptor number specified in its parameters. and helps performing redirecting the input & output to the specified target: 0 for `STDIN`, 1 for `STDOUT`, 2 for `STDERR`.
+Example: `dup2(a,b)`: makes b connected to what a is connected to. `dup2(writeFile, 1)` makes 1-stdout conntected to whichever writeFile specified.
 - `execvp()`: The [execvp()](http://man7.org/linux/man-pages/man3/exec.3.html) system call belongs to the `exec` family, but with its `vp` in the end, it specifies that it takes a vector, and it expects you to be in the right path in order to operate correctly.
 - `open()`: The [open()](http://man7.org/linux/man-pages/man2/open.2.html) system call opens the file specified by file name. and takes a second argument of _flags_.
 - `close()`: The [close()](http://man7.org/linux/man-pages/man2/close.2.html) system call closes the file after finishing I/O operation
