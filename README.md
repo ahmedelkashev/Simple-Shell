@@ -22,12 +22,9 @@ What does this Shell support?
 How does this Shell work?
 -------------------------
 This shell utilizes a lexical analyser to read and parse the input line and uses the function `getline()` to provide an array of pointers to character strings. Each string is either a word containing the letters, numbers, period (.), and forward slash (/), or a character string containing one of the special characters: (, ), <, >, |, &, or ;.
-The shell then uses the input array to determine which command was written by the user using the `strcmp()` function and decides which function should it call from the `/bin/` directory.
-If the input string contains any of the character strings like `<`, `>`, `|`, it behaves accordingly.
+The shell then uses the input array to determine which command was written by the user using the `strcmp()` function and decides which function should it call from the `PATH`.
+If the input string contains any of the character strings like `<`, `>`, `|`, it behaves accordingly and performs redirection or piping.
 
-Note
-----
-In any operating system, the shell looks for the commands in the PATH. however, in this shell, it can only look for programs inside the `/bin/` directory. this will be updated soon.
 
 System Calls
 ------------
