@@ -19,6 +19,9 @@ int main(int argc, char *argv[]) {
   int i;
   char **input;
 
+  int writeFile;
+  int readFile;
+
   while (1) {
     
     /* get current working directory and prompt */
@@ -29,8 +32,6 @@ int main(int argc, char *argv[]) {
     }
 
     input = getline();
-
-    int writeFile;
 
     /* make sure that there are arguments */
     if (argc > 0) {
@@ -44,16 +45,24 @@ int main(int argc, char *argv[]) {
 	/* child process */
 	else {
 
-	    /* if < is in command, redirect output to file */
    	    for (int i = 0; input[i] != NULL; ++i) {
+	    /* if > is in command, redirect output to file */
 		if( strcmp(input[i],">") == 0 ) {
-			writeFile = open(input[i+1], O_RDWR | O_CREAT, 
-S_IRUSR | S_IWUSR);
+			writeFile = open(input[i+1], O_RDWR | 
+O_CREAT, S_IRUSR | S_IWUSR);
 			input[i] = NULL;
 			input[i+1] = NULL;
+			/* 1 for stdout, 2 for stderr */ 
 			dup2(writeFile, 1);
 			dup2(writeFile, 2);
 			close(writeFile);
+		} else if ( strcmp(input[i],"<") == 0 ) {
+			readFile = open(input[i+1], O_RDONLY);
+			input[i] = NULL;
+			input[i+1] = NULL;
+			/* 0 for stdin */
+			dup2(readFile, 0);
+			close(readFile);
 		}
 	    }
 
