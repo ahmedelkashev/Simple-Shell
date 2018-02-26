@@ -50,8 +50,7 @@ int main(int argc, char *argv[]) {
    	    for (int i = 0; input[i] != NULL; ++i) {
 	    	/* redirect output to file */
 		if( strcmp(input[i],">") == 0 ) {
-			writeFile = open(input[i+1], O_RDWR | 
-O_CREAT, S_IRUSR | S_IWUSR);
+			writeFile = open(input[i+1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 			input[i] = NULL;
 			input[i+1] = NULL;
 			/* 1 for stdout, 2 for stderr */ 
