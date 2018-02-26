@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   char **input;
 
   while (1) {
-
+    
     /* get current working directory and prompt */
     if ( getcwd(cwd, sizeof(cwd) ) != NULL) {
         printf("You@My_Shell:%s # ", cwd);
@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
     }
 
     input = getline();
+
+    int writeFile;
 
     /* make sure that there are arguments */
     if (argc > 0) {
@@ -41,6 +43,20 @@ int main(int argc, char *argv[]) {
 	}
 	/* child process */
 	else {
+
+	    /* if < is in command, redirect output to file */
+   	    for (int i = 0; input[i] != NULL; ++i) {
+		if( strcmp(input[i],">") == 0 ) {
+			writeFile = open(input[i+1], O_RDWR | O_CREAT, 
+S_IRUSR | S_IWUSR);
+			input[i] = NULL;
+			input[i+1] = NULL;
+			dup2(writeFile, 1);
+			dup2(writeFile, 2);
+			close(writeFile);
+		}
+	    }
+
 	    /* add path to the program and execute */
 	    sprintf(program_path,"/bin/%s",input[0]);
 	    execvp(program_path,&input[0]);
