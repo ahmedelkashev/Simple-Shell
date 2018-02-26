@@ -23,19 +23,16 @@ int main(int argc, char *argv[]) {
 
     /* get current working directory and prompt */
     if ( getcwd(cwd, sizeof(cwd) ) != NULL) {
-        printf("\nYou@My_Shell>>%s: ", cwd);
+        printf("You@My_Shell:%s # ", cwd);
     } else {
 	printf("\nMy Shell>> ");
     }
 
     input = getline();
 
-
-    /* handling all cases of different commands */
-    for (int i = 0; input[i] != NULL; ++i) {
-
-      /* commands with no arguments */
-      if (argc == 1) {
+    /* make sure that there are arguments */
+    if (argc > 0) {
+	
 	int pid = fork();
 
 	/* parent process-shell */
@@ -44,11 +41,15 @@ int main(int argc, char *argv[]) {
 	}
 	/* child process */
 	else {
-	    sprintf(program_path,"/home/AhmedElkashef/asgn1/%s",input[0]);
-	    execvp(program_path,argv);
+	    /* add path to the program and execute */
+	    sprintf(program_path,"/bin/%s",input[0]);
+	    execvp(program_path,&input[0]);
 	    exit(1);
 	}
-      }
+    }
+
+    /* my implementation of cd and exit commands */
+    for (int i = 0; input[i] != NULL; ++i) {
 
 
       /* exit the shell */
