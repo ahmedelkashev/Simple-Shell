@@ -20,13 +20,11 @@ const int PIPE_WRITE = 1;
 int main(int argc, char *argv[]) {
   int i;
   char **input;
+  char ** filtered_cmd[argc];
 
   char buffer[1024];
   int writeFile;
   int readFile;
-  int pipefd[2];
-  pipe(pipefd);
-  int processes;
   int pipes = 0;
 
   while (1) {
@@ -50,12 +48,22 @@ int main(int argc, char *argv[]) {
 	    wait(NULL);
 	}
 	/* child process - first */
-	else if (pid ==  0){
+	else if (pid == 0){
 
    	    for (int i = 0; input[i] != NULL; ++i) {
 	    	/* redirect output to file */
 		if( strcmp(input[i],">") == 0 ) {
 			writeFile = open(input[i+1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+			
+			/* reorganize the array
+			for (int x = i; input[x] != NULL; x++) {
+				if (input[x+2] == NULL) {
+					input[x] = NULL;
+					break;
+				}
+				input[x] = input[x+2];
+			} */
+
 			input[i] = NULL;
 			input[i+1] = NULL;
 			
@@ -68,36 +76,22 @@ int main(int argc, char *argv[]) {
 		/* redirect input into process */
 		else if ( strcmp(input[i],"<") == 0 ) {
 			readFile = open(input[i+1], O_RDONLY);
+
+			/* reorganize the array
+			for (int x = i; input[x] != NULL; x++) {
+				if (input[x+2] == NULL) {
+					input[x] = NULL;
+					break;
+				}
+				input[x] = input[x+2];
+			} */
+			
 			input[i] = NULL;
 			input[i+1] = NULL;
 			
 			/* 0 for stdin */
 			dup2(readFile, 0);
 			close(readFile);
-		}
-		/* handling pipes */
-		 else if ( strcmp(input[i],"|") == 0 ) {
-			pipes++;
-		}
-
-		/* create pipes and connect them */
-		for (int i = 0; i < pipes; i++) {
-			int pipefd[2];
-			pipe(pipefd);
-
-			int new_pid = fork();
-
-			/* new child process */
-			if (new_pid == 0) {
-				dup2(pipefd[1],1);
-				close(pipefd[1]);
-				close(pipefd[0]);
-			}
-			/* the parent process: first cmd */	
-			else if (new_pid > 0) {
-				dup2(pipefd[0],0);
-				close(pipefd[1]);
-			}
 		}
 	    }
 
@@ -132,8 +126,7 @@ int main(int argc, char *argv[]) {
 	chdir(relative_path);
       }
 
-
-      printf("Item %i of input: %s\n", i, input[i]); // The input list that must be parsed. 
+      printf("Item %i of input: %s\n", i, input[i]);
     }
   }
   
