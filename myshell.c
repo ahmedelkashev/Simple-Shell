@@ -36,6 +36,8 @@ int main(int argc, char * argv[]) {
     }
 
     input = getline();
+    int already_executed = 0;
+
 
     /* loop through args */
     for (int i = 0; input[i] != NULL; ++i) {
@@ -52,7 +54,8 @@ int main(int argc, char * argv[]) {
         chdir(relative_path);
       }
       /* output redirection */
-      if (strcmp(input[0], ">") == 0) {
+      if (strcmp(input[i], ">") == 0) {
+	already_executed = 1;
         int pid = fork();
         /* parent process */
         if (pid > 0) {
@@ -78,7 +81,8 @@ int main(int argc, char * argv[]) {
         }
       }
       /* input redirection */
-      if (strcmp(input[0], "<") == 0) {
+      if (strcmp(input[i], "<") == 0) {
+	already_executed = 1;
         int pid = fork();
         /* parent process */
         if (pid > 0) {
@@ -103,29 +107,31 @@ int main(int argc, char * argv[]) {
         }
       }
       /* piping */
-      if (strcmp(input[0], "|") == 0) {
-
+      if (strcmp(input[i], "|") == 0) {
+	already_executed = 1;
       }
       printf("Item %i of input: %s\n", i, input[i]);
     }
 
+    if (already_executed == 0) {
+	int pid = fork();
+	/* parent process: shell */
+	if (pid > 0) {
+	   wait(NULL);
+	}
+    	/* child process - first */
+    	else if (pid == 0) {
+      	   /* execute the program */
+      	   execvp(input[0], input);
+      	   exit(1);
+    	}
+    	/* handle forking error */
+    	else if (pid == -1) {
+      	   perror("fork");
+     	   exit(1);
+    	}
+    }
 
-    int pid = fork();
-    /* parent process: shell */
-    if (pid > 0) {
-      wait(NULL);
-    }
-    /* child process - first */
-    else if (pid == 0) {
-      /* execute the program */
-      execvp(input[0], input);
-      exit(1);
-    }
-    /* handle forking error */
-    else if (pid == -1) {
-      perror("fork");
-      exit(1);
-    }
   }
 
   return 0;
