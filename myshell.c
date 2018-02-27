@@ -38,77 +38,77 @@ int main(int argc, char *argv[]) {
 
     input = getline();
 
-    /* if there are arguments */
-    if (argc > 0) {
+    int pid = fork();
+
+    /* parent process: shell */
+    if (pid > 0) {
+	wait(NULL);
+    }
+
+    /* child process - first */
+    else if (pid == 0){
+
+    for (int i = 0; input[i] != NULL; ++i) {
+	/* redirect output to file */
+	if( strcmp(input[i],">") == 0 ) {
+		
+		writeFile = open(input[i+1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+			
+		/* reorganize the array
+		for (int x = i; input[x] != NULL; x++) {
+			if (input[x+2] == NULL) {
+				input[x] = NULL;
+				break;
+			}
+			input[x] = input[x+2];
+		} */
+
+		input[i] = NULL;
+		input[i+1] = NULL;
+			
+		/* 1 for stdout, 2 for stderr */ 
+		dup2(writeFile, 1);
+			
+		/*dup2(writeFile, 2);*/
+		close(writeFile);
+	}
 	
-	int pid = fork();
+	/* redirect input into process */
+	else if ( strcmp(input[i],"<") == 0 ) {
+		readFile = open(input[i+1], O_RDONLY);
 
-	/* parent process: shell */
-	if (pid > 0) {
-	    wait(NULL);
-	}
-	/* child process - first */
-	else if (pid == 0){
-
-   	    for (int i = 0; input[i] != NULL; ++i) {
-	    	/* redirect output to file */
-		if( strcmp(input[i],">") == 0 ) {
-			writeFile = open(input[i+1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		/* reorganize the array
+		for (int x = i; input[x] != NULL; x++) {
+			if (input[x+2] == NULL) {
+				input[x] = NULL;
+				break;
+			}
+			input[x] = input[x+2];
+		} */
 			
-			/* reorganize the array
-			for (int x = i; input[x] != NULL; x++) {
-				if (input[x+2] == NULL) {
-					input[x] = NULL;
-					break;
-				}
-				input[x] = input[x+2];
-			} */
-
-			input[i] = NULL;
-			input[i+1] = NULL;
+		input[i] = NULL;
+		input[i+1] = NULL;
 			
-			/* 1 for stdout, 2 for stderr */ 
-			dup2(writeFile, 1);
-			
-			/*dup2(writeFile, 2);*/
-			close(writeFile);
-		}
-		/* redirect input into process */
-		else if ( strcmp(input[i],"<") == 0 ) {
-			readFile = open(input[i+1], O_RDONLY);
-
-			/* reorganize the array
-			for (int x = i; input[x] != NULL; x++) {
-				if (input[x+2] == NULL) {
-					input[x] = NULL;
-					break;
-				}
-				input[x] = input[x+2];
-			} */
-			
-			input[i] = NULL;
-			input[i+1] = NULL;
-			
-			/* 0 for stdin */
-			dup2(readFile, 0);
-			close(readFile);
-		}
-	    }
-
-	    /* execute the program */
-	    execvp(input[0],input);
-	    exit(1);
-	}
-	/* handle forking error */
-	else if (pid == -1) {
-		perror("fork");
-		exit(1);
+		/* 0 for stdin */
+		dup2(readFile, 0);
+		close(readFile);
 	}
     }
 
-    /* my implementation of cd and exit commands */
-    for (int i = 0; input[i] != NULL; ++i) {
+    /* execute the program */
+    execvp(input[0],input);
+    exit(1);
+    }
 
+    /* handle forking error */
+    else if (pid == -1) {
+	perror("fork");
+	exit(1);
+    }
+    }
+
+    /* loop through args */
+    for (int i = 0; input[i] != NULL; ++i) {
 
       /* exit the program */
       if ( strcmp(input[0],"exit") == 0 ) {
@@ -124,6 +124,21 @@ int main(int argc, char *argv[]) {
 	}
 	sprintf(relative_path,"%s/%s",cwd,input[1]);
 	chdir(relative_path);
+      }
+
+      /* handle output redirection */
+      if ( strcmp(input[0],">") == 0 ) {
+
+      }
+
+      /* handle input redirection */
+      if ( strcmp(input[0],"<") == 0 ) {
+
+      }
+
+      /* handle piping */
+      if (strcmp(input[0],"|") == 0 ) {
+
       }
 
       printf("Item %i of input: %s\n", i, input[i]);
