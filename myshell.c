@@ -16,12 +16,11 @@ char relative_path[1024];
 int main(int argc, char * argv[]) {
   int i;
   char * * input;
-  char filtered_cmd[argc];
+  //char * * filtered_cmd;
 
   int writeFile;
   int readFile;
   int pipes = 0;
-  int first_cycle = 0;
 
   while (1) {
 
@@ -35,6 +34,7 @@ int main(int argc, char * argv[]) {
     input = getline1();
 
     int already_executed = 0;
+    int first_cycle = 0;
     int pipefd[2];
 
     /* loop through args */
@@ -67,7 +67,7 @@ int main(int argc, char * argv[]) {
         else if (pid == 0) {
           writeFile = open(input[i + 1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
-          /*for (int x = 0; x == i-1; x++) {
+          /*for (int x = i; input[x] == NULL; x++) {
           	filtered_cmd[x] = input[x];
           }*/
           input[i] = NULL;
@@ -100,7 +100,7 @@ int main(int argc, char * argv[]) {
         else if (pid == 0) {
           readFile = open(input[i + 1], O_RDONLY);
 
-          /*for (int x = 0; x == i-1; x++) {
+          /*for (int x = i; input[x] == NULL; x++) {
           	filtered_cmd[x] = input[x];
           }*/
           input[i] = NULL;
@@ -160,7 +160,6 @@ int main(int argc, char * argv[]) {
           }
           /* child process */
           else if (pid == 0) {
-
             dup2(pipefd[0], 0);
             close(pipefd[0]);
             /* execute the program */
