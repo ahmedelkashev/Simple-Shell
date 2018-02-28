@@ -39,18 +39,38 @@ int main(int argc, char * argv[]) {
     int number_of_args = 0;
     int current_arg = 0;
 
+    /* creating a temporary array */
     for (int i = 0; input[i] != NULL; i++) {
-      if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
+      if (i == 0) {
+        number_of_args++;
+      } else if ( (strcmp(input[i-1], ">") == 0) || (strcmp(input[i-1], "<") == 0) ) {
+          //number_of_args--;
+      } else if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
           number_of_args++;
       }
     }
-
-    // printf("%d\n")
     char * filtered_cmd[number_of_args];
     printf("array initialized with size %d\n", number_of_args);
 
     /* loop through args */
     for (int i = 0; input[i] != NULL; ++i) {
+
+      /* make filtered_cmd */
+      if (first_cycle == 1) {
+        if ( (strcmp(input[i-1], ">") == 0) || (strcmp(input[i-1], "<") == 0) ) {
+          continue;
+        } else if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
+          filtered_cmd[current_arg] = input[i];
+          current_arg++;
+          printf("%d\n", current_arg);
+        }
+      } else if (first_cycle == 0) {
+        if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
+          filtered_cmd[current_arg] = input[i];
+          current_arg++;
+          printf("%d\n", current_arg);
+        }
+      }
 
       /* exit function */
       if (strcmp(input[0], "exit") == 0) {
@@ -79,9 +99,6 @@ int main(int argc, char * argv[]) {
         else if (pid == 0) {
           writeFile = open(input[i + 1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
-          /*for (int x = i; input[x] == NULL; x++) {
-          	filtered_cmd[x] = input[x];
-          }*/
           input[i] = NULL;
           input[i + 1] = NULL;
           /* 1 for stdout, 2 for stderr */
@@ -112,9 +129,6 @@ int main(int argc, char * argv[]) {
         else if (pid == 0) {
           readFile = open(input[i + 1], O_RDONLY);
 
-          /*for (int x = i; input[x] == NULL; x++) {
-          	filtered_cmd[x] = input[x];
-          }*/
           input[i] = NULL;
           input[i + 1] = NULL;
           /* 0 for stdin */
@@ -185,10 +199,6 @@ int main(int argc, char * argv[]) {
             exit(1);
           }
         }
-      }
-      if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
-        filtered_cmd[current_arg] = input[i];
-        current_arg++;
       }
       //printf("Item %i of input: %s\n", i, input[i]);
     }
