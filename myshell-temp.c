@@ -36,15 +36,11 @@ int main(int argc, char * argv[]) {
     int first_cycle = 0;
     int first_pipe = 0;
     int pipefd[2];
-    int number_of_args = 0;
-    int current_arg = 0;
+    int number_of_args;
 
     for (int i = 0; input[i] != NULL; i++) {
-      if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
-          number_of_args++;
-      }
+      number_of_args++;
     }
-
     // printf("%d\n")
     char * filtered_cmd[number_of_args];
     printf("array initialized with size %d\n", number_of_args);
@@ -186,9 +182,8 @@ int main(int argc, char * argv[]) {
           }
         }
       }
-      if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
-        filtered_cmd[current_arg] = input[i];
-        current_arg++;
+      if ( !(strcmp(input[i], "|")) && !(strcmp(input[i], ">")) && !(strcmp(input[i], "<")) ) {
+        filtered_cmd[i] = input[i];
       }
       //printf("Item %i of input: %s\n", i, input[i]);
     }
@@ -213,7 +208,7 @@ int main(int argc, char * argv[]) {
     }
 
     for (int i = 0; i < number_of_args; i++) {
-      printf("%s\n",filtered_cmd[i]);
+      printf("%s",filtered_cmd[i]);
     }
 
   }

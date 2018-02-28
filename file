@@ -1,11 +1,13 @@
-total 484
--rw------- 1 ahmedelkashef ahmedelkashef     721 Feb 28 13:19 file
+total 500
+-rw------- 1 ahmedelkashef ahmedelkashef     871 Feb 28 18:24 file
 -rw-rw-r-- 1 ahmedelkashef ahmedelkashef      21 Feb 27 20:22 input.txt
 -rw-rw-r-- 1 ahmedelkashef ahmedelkashef     404 Feb 27 20:28 lex.l
--rw-rw-r-- 1 ahmedelkashef ahmedelkashef   44876 Feb 28 13:20 lex.yy.c
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef   44876 Feb 28 18:24 lex.yy.c
 -rw-rw-r-- 1 ahmedelkashef ahmedelkashef      88 Feb 27 20:22 makefile
--rwxrwxr-x 1 ahmedelkashef ahmedelkashef   24912 Feb 28 13:20 myshell
--rw-rw-r-- 1 ahmedelkashef ahmedelkashef    4755 Feb 28 13:19 myshell.c
+-rwxrwxr-x 1 ahmedelkashef ahmedelkashef   29056 Feb 28 18:24 myshell
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef     323 Feb 28 17:52 myshell1.c
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef    5442 Feb 28 18:24 myshell.c
 -rw-rw-r-- 1 ahmedelkashef ahmedelkashef 8900608 Feb 27 20:22 myshell.core
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef    5208 Feb 28 18:03 myshell-temp.c
 -rw------- 1 ahmedelkashef ahmedelkashef     721 Feb 28 12:46 output.txt
 -rw-rw-r-- 1 ahmedelkashef ahmedelkashef    4364 Feb 27 20:22 README.md
