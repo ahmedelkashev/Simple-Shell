@@ -1,0 +1,19 @@
+file
+input.txt
+lex.l
+lex.yy.c
+makefile
+myshell
+myshell.c
+myshell.core
+output.txt
+README.md
+hmedelkashef ahmedelkashef      21 Feb 27 20:22 input.txt
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef     404 Feb 27 20:28 lex.l
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef   44876 Feb 28 12:44 lex.yy.c
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef      88 Feb 27 20:22 makefile
+-rwxrwxr-x 1 ahmedelkashef ahmedelkashef   24912 Feb 28 12:44 myshell
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef    4001 Feb 28 12:43 myshell.c
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef 8900608 Feb 27 20:22 myshell.core
+-rw------- 1 ahmedelkashef ahmedelkashef     721 Feb 28 12:44 output.txt
+-rw-rw-r-- 1 ahmedelkashef ahmedelkashef    4364 Feb 27 20:22 README.md

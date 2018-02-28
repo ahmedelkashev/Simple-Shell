@@ -8,23 +8,20 @@
 #include <string.h>
 #include <fcntl.h>
 
-extern char * * getline();
+extern char * * getline1();
 char * getcwd(char * buf, size_t size);
 char cwd[1024];
 char relative_path[1024];
-const int PIPE_READ = 0;
-const int PIPE_WRITE = 1;
-/* easier to use pipeEnds[PIPE_READ] and pipeEnds[PIPE_WRITE] */
 
 int main(int argc, char * argv[]) {
   int i;
   char * * input;
-  char * * filtered_cmd[argc];
+  char filtered_cmd[argc];
 
-  char buffer[1024];
   int writeFile;
   int readFile;
   int pipes = 0;
+  int first_cycle = 0;
 
   while (1) {
 
@@ -35,16 +32,19 @@ int main(int argc, char * argv[]) {
       printf("\nMy Shell>> ");
     }
 
-    input = getline();
-    int already_executed = 0;
+    input = getline1();
 
+    int already_executed = 0;
+    int pipefd[2];
 
     /* loop through args */
     for (int i = 0; input[i] != NULL; ++i) {
+
       /* exit function */
       if (strcmp(input[0], "exit") == 0) {
         exit(-1);
       }
+
       /* cd function */
       if (strcmp(input[0], "cd") == 0) {
         if (argc == 1) {
@@ -53,9 +53,11 @@ int main(int argc, char * argv[]) {
         sprintf(relative_path, "%s/%s", cwd, input[1]);
         chdir(relative_path);
       }
+
       /* output redirection */
       if (strcmp(input[i], ">") == 0) {
-	already_executed = 1;
+        first_cycle = 1;
+        already_executed = 1;
         int pid = fork();
         /* parent process */
         if (pid > 0) {
@@ -64,6 +66,10 @@ int main(int argc, char * argv[]) {
         /* child process */
         else if (pid == 0) {
           writeFile = open(input[i + 1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+          /*for (int x = 0; x == i-1; x++) {
+          	filtered_cmd[x] = input[x];
+          }*/
           input[i] = NULL;
           input[i + 1] = NULL;
           /* 1 for stdout, 2 for stderr */
@@ -80,9 +86,11 @@ int main(int argc, char * argv[]) {
           exit(1);
         }
       }
+
       /* input redirection */
       if (strcmp(input[i], "<") == 0) {
-	already_executed = 1;
+        first_cycle = 1;
+        already_executed = 1;
         int pid = fork();
         /* parent process */
         if (pid > 0) {
@@ -91,6 +99,10 @@ int main(int argc, char * argv[]) {
         /* child process */
         else if (pid == 0) {
           readFile = open(input[i + 1], O_RDONLY);
+
+          /*for (int x = 0; x == i-1; x++) {
+          	filtered_cmd[x] = input[x];
+          }*/
           input[i] = NULL;
           input[i + 1] = NULL;
           /* 0 for stdin */
@@ -106,19 +118,73 @@ int main(int argc, char * argv[]) {
           exit(1);
         }
       }
-      /* piping */
+
+      /* piping - first process */
       if (strcmp(input[i], "|") == 0) {
-	already_executed = 1;
+        printf("i found a pipe");
+        first_cycle = 1;
+        already_executed = 1;
+
+        int pid = fork();
+      	/* parent process: shell */
+      	if (pid > 0) {
+      	   wait(NULL);
+      	}
+      	/* child process */
+      	else if (pid == 0) {
+
+          dup2(pipefd[1], 1);
+          close(pipefd[0]);
+          close(pipefd[1]);
+        	/* execute the program */
+          execlp(input[i-1], input[i-1], "-l", NULL);
+        	//execvp(input[i-1], input);
+        	exit(1);
+      	}
+      	/* forking error */
+      	else if (pid == -1) {
+        	perror("fork");
+       	  exit(1);
+      	}
       }
-      printf("Item %i of input: %s\n", i, input[i]);
+
+      /* piping - second process */
+      if (first_cycle == 1) {
+        if (strcmp(input[i-1], "|") == 0) {
+          printf("program after pipe");
+          already_executed = 1;
+          int pid = fork();
+          /* parent process */
+          if (pid > 0) {
+            wait(NULL);
+          }
+          /* child process */
+          else if (pid == 0) {
+
+            dup2(pipefd[0], 0);
+            close(pipefd[0]);
+            /* execute the program */
+            execvp(input[i], input);
+            //execlp(input[i], input[i], "output.txt", NULL);
+            exit(1);
+          }
+          /* forking error */
+          else if (pid == -1) {
+            perror("fork");
+            exit(1);
+          }
+        }
+      }
+
+      //printf("Item %i of input: %s\n", i, input[i]);
     }
 
     if (already_executed == 0) {
-	int pid = fork();
-	/* parent process: shell */
-	if (pid > 0) {
-	   wait(NULL);
-	}
+    	int pid = fork();
+    	/* parent process: shell */
+    	if (pid > 0) {
+    	   wait(NULL);
+    	}
     	/* child process - first */
     	else if (pid == 0) {
       	   /* execute the program */
