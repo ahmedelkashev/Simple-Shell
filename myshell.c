@@ -62,15 +62,14 @@ int main(int argc, char * argv[]) {
         } else if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
           filtered_cmd[current_arg] = input[i];
           current_arg++;
-          printf("%d\n", current_arg);
         }
       } else if (first_cycle == 0) {
         if ( (strcmp(input[i], "|") != 0) && (strcmp(input[i], ">") != 0) && (strcmp(input[i], "<")!= 0) ) {
           filtered_cmd[current_arg] = input[i];
           current_arg++;
-          printf("%d\n", current_arg);
         }
       }
+      filtered_cmd[current_arg] = NULL;
 
       /* exit function */
       if (strcmp(input[0], "exit") == 0) {
@@ -106,7 +105,7 @@ int main(int argc, char * argv[]) {
           /*dup2(writeFile, 2);*/
           close(writeFile);
           /* execute the program */
-          execvp(input[0], input);
+          execvp(filtered_cmd[0], filtered_cmd);
           exit(1);
         }
         /* forking error */
