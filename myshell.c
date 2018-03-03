@@ -31,7 +31,6 @@ int main(int argc, char * argv[]) {
 
     input = getline1();
 
-    int already_executed = 0;
     int first_cycle = 0;
     int first_pipe = 0;
     int pid, status;
@@ -40,6 +39,7 @@ int main(int argc, char * argv[]) {
     pipe(pipe_A);
     int number_of_args = 0;
     int current_arg = 0;
+    int output_already_redirected = 0;
 
     /* create temporary array */
     for (int i = 0; input[i] != NULL; i++) {
@@ -92,42 +92,20 @@ int main(int argc, char * argv[]) {
         chdir(relative_path);
       }
 
-      /* output redirection */
-      if (strcmp(input[i], ">") == 0) {
-        printf("found >");
-        first_cycle = 1;
-        already_executed = 1;
-        int pid = fork();
-        /* parent process */
-        if (pid > 0) {
-          wait(NULL);
-        }
-        /* child process */
-        else if (pid == 0) {
-          writeFile = open(input[i + 1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-
-          /* 1 for stdout, 2 for stderr */
-          dup2(writeFile, 1);
-          /*dup2(writeFile, 2);*/
-          close(writeFile);
-          /* execute the program */
-          execvp(filtered_cmd[0], filtered_cmd);
-          exit(1);
-        }
-        /* forking error */
-        else if (pid == -1) {
-          perror("fork");
-          exit(1);
-        }
-        /* empty the array */
-        current_arg = 0;
-      }
-
       /* input redirection */
       if (strcmp(input[i], "<") == 0) {
-        printf("found <");
+        printf("found <\n");
+        output_already_redirected = 1;
         first_cycle = 1;
-        already_executed = 1;
+
+        /* put NULL to execute command */
+        for (int i = 0; i < number_of_args; i++) {
+          if (strcmp(filtered_cmd[i], "NULL") == 0) {
+            filtered_cmd[i] = NULL;
+            break;
+          }
+        }
+
         int pid = fork();
         /* parent process */
         if (pid > 0) {
@@ -156,11 +134,52 @@ int main(int argc, char * argv[]) {
         current_arg = 0;
       }
 
-      /* piping - first process */
+      /* output redirection */
+      if (strcmp(input[i], ">") == 0) {
+        first_cycle = 1;
+        output_already_redirected = 1;
+
+        /* put NULL to execute command */
+        for (int i = 0; i < number_of_args; i++) {
+          if (strcmp(filtered_cmd[i], "NULL") == 0) {
+            filtered_cmd[i] = NULL;
+            break;
+          }
+        }
+
+        int pid = fork();
+        /* parent process */
+        if (pid > 0) {
+          wait(NULL);
+        }
+        /* child process */
+        else if (pid == 0) {
+          writeFile = open(input[i + 1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+          /* 1 for stdout, 2 for stderr */
+          dup2(writeFile, 1);
+          /*dup2(writeFile, 2);*/
+          close(writeFile);
+          /* execute the program */
+          execvp(filtered_cmd[0], filtered_cmd);
+          exit(1);
+        }
+        /* forking error */
+        else if (pid == -1) {
+          perror("fork");
+          exit(1);
+        }
+        /* empty the array */
+        current_arg = 0;
+        /* incase pipes */
+        close(pipe_A[0]);
+        close(pipe_A[1]);
+      }
+
+      /* piping */
       if (strcmp(input[i], "|") == 0) {
         printf("i found a pipe\n");
         first_cycle = 1;
-        already_executed = 1;
 
         /* put NULL to execute command */
         for (int i = 0; i < number_of_args; i++) {
@@ -202,80 +221,49 @@ int main(int argc, char * argv[]) {
         current_arg = 0;
       }
 
-      /* piping - second process */
-      if (first_cycle == 1) {
-        if (strcmp(input[i-1], "|") == 0) {
-          printf("program after pipe\n");
-          already_executed = 1;
+    }
+    /* end of loop */
 
-          /* put NULL to execute command */
-          for (int i = 0; i < number_of_args; i++) {
-            if (strcmp(filtered_cmd[i], "NULL") == 0) {
-              filtered_cmd[i] = NULL;
-              break;
-            }
-          }
-
-          int PID_2 = fork();
-          /* parent process */
-          if (PID_2 > 0) {
-            wait(NULL);
-          }
-          /* child process */
-          else if (PID_2 == 0) {
-            /* redirect standard input to pipe_A read end */
-            dup2(pipe_A[0], 0);
-            close(pipe_A[1]);
-
-            /* execute the program */
-            printf("will execute now-after pipe\n");
-            //execvp(cmd4[0], cmd4);
-            execvp(filtered_cmd[0], filtered_cmd);
-            //execvp(cmd2[0], cmd2);
-            exit(1);
-          }
-          /* forking error */
-          else if (PID_2 == -1) {
-            perror("fork");
-            exit(1);
-          }
-          close(pipe_A[0]);
-          close(pipe_A[1]);
-        }
+    /* execute the last command */
+    /* only if the last output is not redirected */
+    if (output_already_redirected == 0) {
+      printf("ana d5lt\n");
+      int PID_4 = fork();
+      /* parent process: shell */
+      if (PID_4 > 0) {
+         wait(NULL);
       }
+      /* child process */
+      else if (PID_4 == 0) {
+        printf("I am the last command\n");
+        /* redirect standard input to pipe_A read end */
+        dup2(pipe_A[0], 0);
+        close(pipe_A[1]);
 
+        /* put NULL to execute command */
+        for (int i = 0; i < number_of_args; i++) {
+          if (strcmp(filtered_cmd[i], "NULL") == 0) {
+            filtered_cmd[i] = NULL;
+            break;
+          }
+        }
+        /* show me the array up to this moment */
+        for (int i = 0; i < 4; i++) {
+            printf("Item %i of filtered_cmd: %s\n", i, filtered_cmd[i]);
+        }
+        printf("will execute the last command\n");
+        execvp(filtered_cmd[0], filtered_cmd);
+      	exit(0);
+      }
+      /* forking error */
+      else if (PID_4 == -1) {
+        perror("Can't fork");
+        exit(1);
+      }
+      close(pipe_A[0]);
+      close(pipe_A[1]);
     }
 
-
-    /* show me the array up to this moment */
-    for (int i = 0; i < 4; i++) {
-        printf("Item %i of filtered_cmd: %s\n", i, filtered_cmd[i]);
-    }
-    /* empty the array */
-    for (int i = 0; i < number_of_args; i++) {
-        filtered_cmd[i] == NULL;
-    }
-    current_arg = 0;
-
-
-    if (already_executed == 0) {
-    	int pid = fork();
-    	/* parent process: shell */
-    	if (pid > 0) {
-    	   wait(NULL);
-    	}
-    	/* child process - first */
-    	else if (pid == 0) {
-      	   /* execute the program */
-      	   execvp(input[0], input);
-      	   exit(1);
-    	}
-    	/* handle forking error */
-    	else if (pid == -1) {
-      	   perror("fork");
-     	   exit(1);
-    	}
-    }
   }
   return 0;
 }

@@ -1,0 +1,13 @@
+a.out
+input
+lex.l
+lex.yy.c
+makefile
+myshell
+myshell1.c
+myshell.c
+myshell.core
+myshell-temp.c
+out
+pipe.c
+README.md
