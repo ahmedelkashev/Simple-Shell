@@ -34,7 +34,6 @@ int main(int argc, char * argv[]) {
     int already_executed = 0;
     int first_cycle = 0;
     int first_pipe = 0;
-    int pid, status;
     int pipe_A[2];
 
     pipe(pipe_A);
@@ -55,11 +54,6 @@ int main(int argc, char * argv[]) {
     char * filtered_cmd[number_of_args];
     printf("array initialized with size %d\n", number_of_args);
 
-    /* replace garbage with NULL */
-    for (int i = 0; i <= number_of_args; i++) {
-         filtered_cmd[i] = "NULL";
-    }
-
     /* loop through args */
     for (int i = 0; input[i] != NULL; ++i) {
 
@@ -77,6 +71,7 @@ int main(int argc, char * argv[]) {
           current_arg++;
         }
       }
+      filtered_cmd[number_of_args-1] = NULL;
 
       /* exit function */
       if (strcmp(input[0], "exit") == 0) {
@@ -150,9 +145,6 @@ int main(int argc, char * argv[]) {
           exit(1);
         }
         /* empty the array */
-        for (int i = 0; i <= number_of_args; i++) {
-             filtered_cmd[i] = "NULL";
-        }
         current_arg = 0;
       }
 
@@ -161,14 +153,6 @@ int main(int argc, char * argv[]) {
         printf("i found a pipe\n");
         first_cycle = 1;
         already_executed = 1;
-
-        /* put NULL to execute command */
-        for (int i = 0; i < number_of_args; i++) {
-          if (strcmp(filtered_cmd[i], "NULL") == 0) {
-            filtered_cmd[i] = NULL;
-            break;
-          }
-        }
 
         int PID_1 = fork();
       	/* parent process: shell */
@@ -181,10 +165,12 @@ int main(int argc, char * argv[]) {
           /* redirect standard output to pipe_A write end */
           dup2(pipe_A[1], 1);
           close(pipe_A[0]);
+          close(pipe_A[1]);
 
         	/* execute the program */
-        	execvp(filtered_cmd[0], filtered_cmd);
-          exit(1);
+        	execvp(filtered_cmd[i], filtered_cmd);
+          printf("exectued first program\n");
+        	exit(1);
       	}
       	/* forking error */
       	else if (PID_1 == -1) {
@@ -192,12 +178,12 @@ int main(int argc, char * argv[]) {
        	  exit(1);
       	}
         /* show me the array up to this moment */
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 2; i++) {
             printf("Item %i of filtered_cmd: %s\n", i, filtered_cmd[i]);
         }
         /* empty the array */
-        for (int i = 0; i <= number_of_args; i++) {
-             filtered_cmd[i] = "NULL";
+        for (int i = 0; i < number_of_args; i++) {
+            filtered_cmd[i] == NULL;
         }
         current_arg = 0;
       }
@@ -207,31 +193,24 @@ int main(int argc, char * argv[]) {
         if (strcmp(input[i-1], "|") == 0) {
           printf("program after pipe\n");
           already_executed = 1;
-
-          /* put NULL to execute command */
-          for (int i = 0; i < number_of_args; i++) {
-            if (strcmp(filtered_cmd[i], "NULL") == 0) {
-              filtered_cmd[i] = NULL;
-              break;
-            }
-          }
-
           int PID_2 = fork();
           /* parent process */
           if (PID_2 > 0) {
+            close(pipe_A[0]);
+            close(pipe_A[1]);
             wait(NULL);
           }
           /* child process */
           else if (PID_2 == 0) {
+
             /* redirect standard input to pipe_A read end */
             dup2(pipe_A[0], 0);
             close(pipe_A[1]);
+            close(pipe_A[0]);
 
             /* execute the program */
-            printf("will execute now-after pipe\n");
-            //execvp(cmd4[0], cmd4);
-            execvp(filtered_cmd[0], filtered_cmd);
-            //execvp(cmd2[0], cmd2);
+            //printf("will execute now-after pipe\n");
+            execvp(filtered_cmd[i], filtered_cmd);
             exit(1);
           }
           /* forking error */
@@ -239,16 +218,12 @@ int main(int argc, char * argv[]) {
             perror("fork");
             exit(1);
           }
-          close(pipe_A[0]);
-          close(pipe_A[1]);
         }
       }
-
     }
 
-
     /* show me the array up to this moment */
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 2; i++) {
         printf("Item %i of filtered_cmd: %s\n", i, filtered_cmd[i]);
     }
     /* empty the array */
@@ -276,6 +251,8 @@ int main(int argc, char * argv[]) {
      	   exit(1);
     	}
     }
+
   }
+
   return 0;
 }
