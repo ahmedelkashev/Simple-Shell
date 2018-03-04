@@ -16,8 +16,8 @@ What does this Shell support?
 -----------------------------
 - Single commands with no arguments, example: `exit`, `ls`, `ps`.
 - Single commands with arguments and flags: `ls -l`, `ps aux`, `cd ..`.
-- Redirecting input & output: `cat input.txt > output.txt`
-- "To be implemented", Piping commands: `cat input.txt | grep 2`
+- Redirecting input & output: `cat input.txt > output.txt` & `cat < input.txt`
+- Piping commands (infinitely): `ls | grep 2 | cat`
 
 How does this Shell work?
 -------------------------
@@ -25,6 +25,11 @@ This shell utilizes a lexical analyser to read and parse the input line and uses
 The shell then uses the input array to determine which command was written by the user using the `strcmp()` function and decides which function should it call from the `PATH`.
 If the input string contains any of the character strings like `<`, `>`, `|`, it behaves accordingly and performs redirection or piping.
 
+Current Issues in the Shell:
+----------------------------
+- Output mixed with piping is not yet supported.
+- When piping two commands, the last command does not exit and you have to preemit the shell using ctrl+c.
+- Output Redirection writes to a file, but when you open that file .. your terminal most probably will freeze.
 
 System Calls
 ------------
@@ -39,6 +44,7 @@ Example: `dup2(a,b)`: makes b connected to what a is connected to. `dup2(writeFi
 - `read()`: [read()](http://man7.org/linux/man-pages/man2/read.2.html) reads up to an x number of bytes from a certain file into the buffer. A buffer has to be created first.
 - `write()`: [write()](http://man7.org/linux/man-pages/man2/write.2.html) writes up to an x number bytes from the buffer starting at a certain point to the file referred to in the function declaration.
 - `perror()`: [perror()](http://man7.org/linux/man-pages/man3/perror.3.html) prints a system error message.
+- `pipe()`: [pipe()](http://man7.org/linux/man-pages/man2/pipe.2.html) creates a pipe, a unidirectional data channel that can be used for interprocess communication.
 
 Flags
 -----
