@@ -190,6 +190,8 @@ int main(int argc, char * argv[]) {
       	/* parent process: shell */
       	if (PID_1 > 0) {
       	   wait(NULL);
+           close(pipe_A[1]);
+           //close(0);
       	}
       	/* child process */
       	else if (PID_1 == 0) {
@@ -224,6 +226,8 @@ int main(int argc, char * argv[]) {
       /* parent process: shell */
       if (PID_4 > 0) {
          wait(NULL);
+         close(pipe_A[0]);
+         close(pipe_A[1]);
       }
       /* child process */
       else if (PID_4 == 0) {
@@ -246,8 +250,7 @@ int main(int argc, char * argv[]) {
         perror("Can't fork");
         exit(1);
       }
-      close(pipe_A[0]);
-      close(pipe_A[1]);
+
     }
 
   }
