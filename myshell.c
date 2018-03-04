@@ -228,6 +228,8 @@ int main(int argc, char * argv[]) {
          wait(NULL);
          close(pipe_A[0]);
          close(pipe_A[1]);
+
+         printf("salah");
       }
       /* child process */
       else if (PID_4 == 0) {
