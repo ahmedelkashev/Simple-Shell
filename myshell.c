@@ -53,7 +53,7 @@ int main(int argc, char * argv[]) {
     }
     number_of_args++;
     char * filtered_cmd[number_of_args];
-    printf("array initialized with size %d\n", number_of_args);
+    //printf("array initialized with size %d\n", number_of_args);
 
     /* replace garbage with NULL */
     for (int i = 0; i <= number_of_args; i++) {
@@ -94,7 +94,6 @@ int main(int argc, char * argv[]) {
 
       /* input redirection */
       if (strcmp(input[i], "<") == 0) {
-        printf("found <\n");
         output_already_redirected = 1;
         first_cycle = 1;
 
@@ -158,11 +157,10 @@ int main(int argc, char * argv[]) {
 
           /* 1 for stdout, 2 for stderr */
           dup2(writeFile, 1);
-          /*dup2(writeFile, 2);*/
           close(writeFile);
           /* execute the program */
           execvp(filtered_cmd[0], filtered_cmd);
-          exit(1);
+          exit(0);
         }
         /* forking error */
         else if (pid == -1) {
@@ -178,7 +176,6 @@ int main(int argc, char * argv[]) {
 
       /* piping */
       if (strcmp(input[i], "|") == 0) {
-        printf("i found a pipe\n");
         first_cycle = 1;
 
         /* put NULL to execute command */
@@ -210,10 +207,6 @@ int main(int argc, char * argv[]) {
         	perror("Can't fork");
        	  exit(1);
       	}
-        /* show me the array up to this moment */
-        for (int i = 0; i < 4; i++) {
-            printf("Item %i of filtered_cmd: %s\n", i, filtered_cmd[i]);
-        }
         /* empty the array */
         for (int i = 0; i <= number_of_args; i++) {
              filtered_cmd[i] = "NULL";
@@ -227,7 +220,6 @@ int main(int argc, char * argv[]) {
     /* execute the last command */
     /* only if the last output is not redirected */
     if (output_already_redirected == 0) {
-      printf("ana d5lt\n");
       int PID_4 = fork();
       /* parent process: shell */
       if (PID_4 > 0) {
@@ -235,7 +227,6 @@ int main(int argc, char * argv[]) {
       }
       /* child process */
       else if (PID_4 == 0) {
-        printf("I am the last command\n");
         /* redirect standard input to pipe_A read end */
         dup2(pipe_A[0], 0);
         close(pipe_A[1]);
@@ -247,13 +238,8 @@ int main(int argc, char * argv[]) {
             break;
           }
         }
-        /* show me the array up to this moment */
-        for (int i = 0; i < 4; i++) {
-            printf("Item %i of filtered_cmd: %s\n", i, filtered_cmd[i]);
-        }
-        printf("will execute the last command\n");
         execvp(filtered_cmd[0], filtered_cmd);
-      	exit(0);
+      	exit(1);
       }
       /* forking error */
       else if (PID_4 == -1) {
